@@ -11,6 +11,6 @@ RUN apt-get update \
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-COPY bigquery-upload.sh /
+COPY bigquery-upload.sh /usr/local/bin
 
 CMD [ "/usr/bin/bq", "ls" ]
