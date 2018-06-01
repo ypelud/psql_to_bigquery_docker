@@ -40,5 +40,18 @@ function upload_table {
        start_date=$(date -d "$start_date+1 days" +%Y%m%d)
   done
 }
- 
-upload_table "$1" '*' "$2" "$3" "$4"
+
+function multi_tables {
+  tables=$(echo "$1" | tr ";" "\n")
+  shift # remove first args
+
+  for t in $tables
+  do
+    echo "upload_table" "$t" '*' "$@"
+  done
+
+}
+
+multi_tables $@
+
+
