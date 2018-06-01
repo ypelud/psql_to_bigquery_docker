@@ -1,7 +1,8 @@
+#!/bin/bash
+
 # taken from this blog : https://statsbot.co/blog/postgres-to-bigquery-etl/
 # thanks to them
 
-#!/bin/bash
  
 function upload_day {
   table=$1
