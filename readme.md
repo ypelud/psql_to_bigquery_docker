@@ -4,7 +4,7 @@ This is Docker image for creating batch for uploading data from Postgresql to Bi
 
 ## Supported tags
 
-* `ypelud/psql-bigquery:latest`: only for now
+* `ypelud/psql-bigquery:latest`
 
 &rarr; Check out [Docker Hub](https://hub.docker.com/r/ypelud/psql-bigquery/tags/) for available tags.
 
@@ -21,87 +21,48 @@ To use this image, pull from [Docker Hub](https://hub.docker.com/r/ypelud/psql-b
 docker pull ypelud/psql-bigquery:latest
 ```
 
-Verify the install
-
-```bash
-docker run -ti  ypelud/psql-bigquery:latest gcloud version
-Google Cloud SDK 159.0.0
-```
-
-or use a particular version number:
-
-```bash
-docker run -ti google/cloud-sdk:160.0.0 gcloud version
-```
-
-Then, authenticate by running:
+Download file `.bigqueryrc` and change values to suit your project:
 
 ```
-docker run -ti --name gcloud-config google/cloud-sdk gcloud auth login
+curl https://raw.githubusercontent.com/ypelud/psql_to_bigquery_docker/master/.bigqueryrc.sample > .bigqueryrc
 ```
 
-Once you authenticate successfully, credentials are preserved in the volume of
-the `gcloud-config` container.
-
-To list compute instances using these credentials, run the container with
-`--volumes-from`:
+Download file `commun.env` and change values to suit your project :
 
 ```
-docker run --rm -ti --volumes-from gcloud-config google/cloud-sdk gcloud compute instances list --project your_project
-NAME        ZONE           MACHINE_TYPE   PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP      STATUS
-instance-1  us-central1-a  n1-standard-1               10.240.0.2   8.34.219.29      RUNNING
+curl https://raw.githubusercontent.com/ypelud/psql_to_bigquery_docker/master/commun.env.sample > commun.env
 ```
 
-> :warning: **Warning:** The `gcloud-config` container now has a volume
-> containing your Google Cloud credentials. Do not use `gcloud-config` volume in
-> other containers.
+[Create a service account key](https://cloud.google.com/docs/authentication/getting-started) for Cloud API and copy credentials file into `.bigquery.json`.
 
-### Installing additional components
 
-By default, [all gcloud components
-are](https://cloud.google.com/sdk/downloads#apt-get) installed on the default
-images (`google/cloud-sdk:latest` and `google/cloud-sdk:VERSION`).
-
-The `google/cloud-sdk:slim` and `google/cloud-sdk:alpine` images do not contain
-additional components pre-installed. You can extend these images by following
-the instructions below:
-
-#### Debian-based images
+Then, run a test:
 
 ```
-cd debian_slim/
-docker build --build-arg CLOUD_SDK_VERSION=159.0.0 \
-    --build-arg INSTALL_COMPONENTS="google-cloud-sdk-datastore-emulator" \
-    -t my-cloud-sdk-docker:slim .
+docker run -ti  --rm \
+  -v $PWD/.bigquery.json:/root/.bigquery.json \
+  -v $PWD/.bigqueryrc:/root/.bigqueryrc \
+  --env-file ./commun.env \
+  ypelud/psql-bigquery
 ```
 
-#### Alpine-based images
-
-To install additional components for Alpine-based images, create a Dockerfile
-that uses the gcloud image as the base image. For example, to add `kubectl` and
-`app-engine-java` components:
-
-```Dockerfile
-FROM google/cloud-sdk:alpine
-RUN apk --update add openjdk7-jre
-RUN gcloud components install app-engine-java kubectl
-```
-
-and run:
+You can now run export like this one, this push all rows from table messages with created_at equal today.
 
 ```
-docker build  -t my-cloud-sdk-docker:alpine .
+docker run -ti --rm \
+  -v $PWD/.bigquery.json:/root/.bigquery.json \
+  -v $PWD/.bigqueryrc:/root/.bigqueryrc \
+  --env-file ./commun.env \
+  bigquery ./bigquery-upload.sh messages "20180216" "20180217"
 ```
 
-Note that in this case, you have to install dependencies of additional
-components manually.
 
-### Legacy image (Google App Engine based)
+You can now run export like this one, this export all rows from messages with updated_at between February 16, 2018 and February 19, 2018.
 
-The original image in this repository was based off of 
-
-> FROM gcr.io/google_appengine/base
-
-The full Dockerfile for that can be found
-[here](google_appengine_base/Dockerfile) for archival as well as in image tag
-`google/cloud-sdk-docker:legacy`
+```
+docker run -ti --rm \
+  -v $PWD/.bigquery.json:/root/.bigquery.json \
+  -v $PWD/.bigqueryrc:/root/.bigqueryrc \
+  --env-file ./commun.env \
+  bigquery ./bigquery-upload.sh messages "20180216" "20180219" updated_at
+```
