@@ -53,7 +53,8 @@ docker run -ti --rm \
   -v $PWD/.bigquery.json:/root/.bigquery.json \
   -v $PWD/.bigqueryrc:/root/.bigqueryrc \
   --env-file ./commun.env \
-  bigquery ./bigquery-upload.sh messages "20180216" "20180217"
+  psql-bigquery ./bigquery-upload.sh messages \
+  "20180216" "20180217"
 ```
 
 
@@ -64,5 +65,6 @@ docker run -ti --rm \
   -v $PWD/.bigquery.json:/root/.bigquery.json \
   -v $PWD/.bigqueryrc:/root/.bigqueryrc \
   --env-file ./commun.env \
-  bigquery ./bigquery-upload.sh messages "20180216" "20180219" updated_at
+  psql-bigquery ./bigquery-upload.sh messages \
+  "20180216" "20180219" updated_at
 ```
