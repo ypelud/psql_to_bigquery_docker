@@ -1,0 +1,9 @@
+--project_id=<PROJECT_ID>
+--dataset_id=<DATASET>
+
+[load]
+--max_bad_records=100
+--allow_quoted_newlines
+--replace 
+--source_format=CSV 
+--autodetect  
