@@ -48,7 +48,7 @@ function multi_tables {
 
   for t in $tables
   do
-    echo "upload_table" "$t" '*' "$@"
+    upload_table "$t" '*' "$@"
   done
 
 }
