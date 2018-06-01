@@ -53,6 +53,16 @@ function multi_tables {
 
 }
 
-multi_tables $@
+export PGPASSWORD=$POSTGRES_PASSWORD
+
+FILE=/root/.bigquery.json
+
+if [ -f $FILE ]; then
+  gcloud auth activate-service-account --key-file $FILE
+  multi_tables $@
+else
+   echo "/root/.bigquery.json doesn't exists"
+fi
+
 
 
