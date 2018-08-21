@@ -28,6 +28,10 @@ function upload_table {
     start_date=$(date +%Y%m%d)
   fi
 
+  if [ "$start_date" == 'yesterday' ]; then
+    start_date=$(date -d "1 day ago" +%Y%m%d)
+  fi
+
   if [ -z "$end_date" ]; then
     end_date=$start_date
   fi
